@@ -1,0 +1,30 @@
+{
+  "name": "code-slides",
+  "version": "1.0.0",
+  "description": "Markdown slideshow with code editor",
+  "scripts": {
+    "dev": "concurrently -n 🎨,ʦ 'pnpm dev:deck' 'pnpm dev:tsc'",
+    "dev:deck": "cd packages/deck && pnpm vite --clearScreen false",
+    "dev:tsc": "tsc --build --watch --preserveWatchOutput"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/katis/code-slides.git"
+  },
+  "keywords": [
+    "markdown",
+    "slides",
+    "slideshow",
+    "editor"
+  ],
+  "author": "Joni Katajamäki",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/katis/code-slides/issues"
+  },
+  "homepage": "https://github.com/katis/code-slides#readme",
+  "devDependencies": {
+    "concurrently": "^7.0.0",
+    "typescript": "^4.6.3"
+  }
+}
