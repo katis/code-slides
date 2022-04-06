@@ -1,0 +1,12 @@
+= Code slideshow
+
+== Development
+
+Codebase uses https://pnpm.io[pnpm] as a package manager.
+
+Run the dev tools in watch mode with:
+
+[source,bash]
+----
+pnpm dev
+----

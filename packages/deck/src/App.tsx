@@ -1,3 +1,15 @@
 import { Component } from 'solid-js'
+import { Editor } from './components/Editor/Editor'
 
-export const App: Component = () => <h1>Hello, world!</h1>
+const src = `
+function greet(): string {
+  console.log("Hello, world!")
+}
+greet()
+`.trim()
+
+export const App: Component = () => (
+  <div>
+    <Editor src={src} />
+  </div>
+)
