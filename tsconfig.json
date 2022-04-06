@@ -1,4 +1,9 @@
 {
-  "references": [{ "path": "packages/deck" }],
+  "references": [
+    {
+      "path": "packages/common"
+    },
+    { "path": "packages/deck" }
+  ],
   "include": []
 }
