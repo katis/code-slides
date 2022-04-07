@@ -10,14 +10,12 @@ export interface Slide {
 }
 
 export const Slide: Component<{ slide: Slide }> = ({ slide }) => (
-  <PhrasingContent content={slide.content} />
+  <Content content={slide.content} />
 )
 
 const tsLanguages: List<string> = ['ts', 'typescript']
 
-const PhrasingContent: Component<{ content: List<MdAst.Content> }> = ({
-  content,
-}) => (
+const Content: Component<{ content: List<MdAst.Content> }> = ({ content }) => (
   <Index each={content}>
     {node => (
       // TODO: table, tableRow, tableCell, definition, footnoteDefinition,
@@ -26,7 +24,7 @@ const PhrasingContent: Component<{ content: List<MdAst.Content> }> = ({
         <Match when={Case.as(node(), 'blockquote')}>
           {node => (
             <blockquote>
-              <PhrasingContent content={node.children} />
+              <Content content={node.children} />
             </blockquote>
           )}
         </Match>
@@ -50,14 +48,14 @@ const PhrasingContent: Component<{ content: List<MdAst.Content> }> = ({
         <Match when={Case.as(node(), 'delete')}>
           {node => (
             <del>
-              <PhrasingContent content={node.children} />
+              <Content content={node.children} />
             </del>
           )}
         </Match>
         <Match when={Case.as(node(), 'emphasis')}>
           {node => (
             <em>
-              <PhrasingContent content={node.children} />
+              <Content content={node.children} />
             </em>
           )}
         </Match>
@@ -66,32 +64,32 @@ const PhrasingContent: Component<{ content: List<MdAst.Content> }> = ({
             <Switch>
               <Match when={node.depth === 1}>
                 <h1 class="text-6xl">
-                  <PhrasingContent content={node.children} />
+                  <Content content={node.children} />
                 </h1>
               </Match>
               <Match when={node.depth === 2}>
                 <h2 class="text-5xl">
-                  <PhrasingContent content={node.children} />
+                  <Content content={node.children} />
                 </h2>
               </Match>
               <Match when={node.depth === 3}>
                 <h3 class="text-4xl">
-                  <PhrasingContent content={node.children} />
+                  <Content content={node.children} />
                 </h3>
               </Match>
               <Match when={node.depth === 4}>
                 <h4 class="text-3xl">
-                  <PhrasingContent content={node.children} />
+                  <Content content={node.children} />
                 </h4>
               </Match>
               <Match when={node.depth === 5}>
                 <h5 class="text-2xl">
-                  <PhrasingContent content={node.children} />
+                  <Content content={node.children} />
                 </h5>
               </Match>
               <Match when={node.depth === 6}>
                 <h6 class="text-xl">
-                  <PhrasingContent content={node.children} />
+                  <Content content={node.children} />
                 </h6>
               </Match>
             </Switch>
@@ -109,7 +107,7 @@ const PhrasingContent: Component<{ content: List<MdAst.Content> }> = ({
         <Match when={Case.as(node(), 'link')}>
           {node => (
             <a class="text-indigo-300" href={node.url}>
-              <PhrasingContent content={node.children} />
+              <Content content={node.children} />
             </a>
           )}
         </Match>
@@ -119,12 +117,12 @@ const PhrasingContent: Component<{ content: List<MdAst.Content> }> = ({
             <Switch>
               <Match when={node.ordered}>
                 <ol start={node.start ?? undefined}>
-                  <PhrasingContent content={node.children} />
+                  <Content content={node.children} />
                 </ol>
               </Match>
               <Match when={!node.ordered}>
                 <ul>
-                  <PhrasingContent content={node.children} />
+                  <Content content={node.children} />
                 </ul>
               </Match>
             </Switch>
@@ -133,21 +131,21 @@ const PhrasingContent: Component<{ content: List<MdAst.Content> }> = ({
         <Match when={Case.as(node(), 'listItem')}>
           {node => (
             <li>
-              <PhrasingContent content={node.children} />
+              <Content content={node.children} />
             </li>
           )}
         </Match>
         <Match when={Case.as(node(), 'paragraph')}>
           {node => (
             <p>
-              <PhrasingContent content={node.children} />
+              <Content content={node.children} />
             </p>
           )}
         </Match>
         <Match when={Case.as(node(), 'strong')}>
           {node => (
             <strong>
-              <PhrasingContent content={node.children} />
+              <Content content={node.children} />
             </strong>
           )}
         </Match>
