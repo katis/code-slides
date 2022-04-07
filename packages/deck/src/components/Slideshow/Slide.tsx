@@ -1,7 +1,8 @@
 import type Toml from '@iarna/toml'
-import { List } from '@katis/common'
+import { Case, List } from '@katis/common'
 import type * as MdAst from 'mdast'
-import { Component, Index } from 'solid-js'
+import { Component, Index, Match, Show, Switch } from 'solid-js'
+import { Editor } from '../Editor/Editor'
 
 export interface Slide {
   metadata: Toml.JsonMap
@@ -9,81 +10,152 @@ export interface Slide {
 }
 
 export const Slide: Component<{ slide: Slide }> = ({ slide }) => (
-  <Index each={slide.content}>
-    {getNode => {
-      const node = getNode()
-      switch (node.type) {
-        case 'heading': {
-          switch (node.depth) {
-            case 1:
-              return (
-                <h1 class="text-5xl">
-                  <PhrasingContent content={node.children} />
-                </h1>
-              )
-            case 2:
-              return (
-                <h2 class="text-4xl">
-                  <PhrasingContent content={node.children} />
-                </h2>
-              )
-            case 3:
-              return (
-                <h3>
-                  <PhrasingContent content={node.children} />
-                </h3>
-              )
-            case 4:
-              return (
-                <h4>
-                  <PhrasingContent content={node.children} />
-                </h4>
-              )
-            case 5:
-              return (
-                <h5>
-                  <PhrasingContent content={node.children} />
-                </h5>
-              )
-            case 6:
-              return (
-                <h6>
-                  <PhrasingContent content={node.children} />
-                </h6>
-              )
-          }
-        }
-        case 'paragraph':
-          return (
-            <p>
-              <PhrasingContent content={node.children} />
-            </p>
-          )
-        default:
-          throw Error(`Unhandled top-level node '${node.type}'`)
-      }
-    }}
-  </Index>
+  <PhrasingContent content={slide.content} />
 )
 
-const PhrasingContent: Component<{ content: List<MdAst.PhrasingContent> }> = ({
+const tsLanguages: List<string> = ['ts', 'typescript']
+
+const PhrasingContent: Component<{ content: List<MdAst.Content> }> = ({
   content,
 }) => (
   <Index each={content}>
-    {getNode => {
-      const node = getNode()
-      switch (node.type) {
-        case 'text':
-          return node.value
-        case 'link':
-          return (
+    {node => (
+      // TODO: table, tableRow, tableCell, definition, footnoteDefinition,
+      //   linkReference, imageReference, footnot, footnoteReference
+      <Switch fallback={<div>Unknown node type {node().type}</div>}>
+        <Match when={Case.as(node(), 'blockquote')}>
+          {node => (
+            <blockquote>
+              <PhrasingContent content={node.children} />
+            </blockquote>
+          )}
+        </Match>
+        <Match when={Case.as(node(), 'break')}>
+          <br />
+        </Match>
+        <Match when={Case.as(node(), 'code')}>
+          {node => (
+            <Show
+              when={tsLanguages.includes(node.lang ?? '')}
+              fallback={
+                <code>
+                  <pre>{node.value}</pre>
+                </code>
+              }
+            >
+              <Editor src={node.value} />
+            </Show>
+          )}
+        </Match>
+        <Match when={Case.as(node(), 'delete')}>
+          {node => (
+            <del>
+              <PhrasingContent content={node.children} />
+            </del>
+          )}
+        </Match>
+        <Match when={Case.as(node(), 'emphasis')}>
+          {node => (
+            <em>
+              <PhrasingContent content={node.children} />
+            </em>
+          )}
+        </Match>
+        <Match when={Case.as(node(), 'heading')}>
+          {node => (
+            <Switch>
+              <Match when={node.depth === 1}>
+                <h1 class="text-6xl">
+                  <PhrasingContent content={node.children} />
+                </h1>
+              </Match>
+              <Match when={node.depth === 2}>
+                <h2 class="text-5xl">
+                  <PhrasingContent content={node.children} />
+                </h2>
+              </Match>
+              <Match when={node.depth === 3}>
+                <h3 class="text-4xl">
+                  <PhrasingContent content={node.children} />
+                </h3>
+              </Match>
+              <Match when={node.depth === 4}>
+                <h4 class="text-3xl">
+                  <PhrasingContent content={node.children} />
+                </h4>
+              </Match>
+              <Match when={node.depth === 5}>
+                <h5 class="text-2xl">
+                  <PhrasingContent content={node.children} />
+                </h5>
+              </Match>
+              <Match when={node.depth === 6}>
+                <h6 class="text-xl">
+                  <PhrasingContent content={node.children} />
+                </h6>
+              </Match>
+            </Switch>
+          )}
+        </Match>
+        <Match when={Case.as(node(), 'html')}>
+          {node => <pre>{node.value}</pre>}
+        </Match>
+        <Match when={Case.as(node(), 'image')}>
+          {node => <img src={node.url} alt={node.alt ?? undefined}></img>}
+        </Match>
+        <Match when={Case.as(node(), 'inlineCode')}>
+          {node => <pre>{node.value}</pre>}
+        </Match>
+        <Match when={Case.as(node(), 'link')}>
+          {node => (
             <a class="text-indigo-300" href={node.url}>
-              {<PhrasingContent content={node.children} />}
+              <PhrasingContent content={node.children} />
             </a>
-          )
-        default:
-          throw Error(`Unhandled p node '${node.type}'`)
-      }
-    }}
+          )}
+        </Match>
+        <Match when={Case.as(node(), 'list')}>
+          {node => (
+            // TODO: node.spread prop
+            <Switch>
+              <Match when={node.ordered}>
+                <ol start={node.start ?? undefined}>
+                  <PhrasingContent content={node.children} />
+                </ol>
+              </Match>
+              <Match when={!node.ordered}>
+                <ul>
+                  <PhrasingContent content={node.children} />
+                </ul>
+              </Match>
+            </Switch>
+          )}
+        </Match>
+        <Match when={Case.as(node(), 'listItem')}>
+          {node => (
+            <li>
+              <PhrasingContent content={node.children} />
+            </li>
+          )}
+        </Match>
+        <Match when={Case.as(node(), 'paragraph')}>
+          {node => (
+            <p>
+              <PhrasingContent content={node.children} />
+            </p>
+          )}
+        </Match>
+        <Match when={Case.as(node(), 'strong')}>
+          {node => (
+            <strong>
+              <PhrasingContent content={node.children} />
+            </strong>
+          )}
+        </Match>
+        <Match when={Case.as(node(), 'thematicBreak')}>
+          <hr />
+        </Match>
+        <Match when={Case.as(node(), 'text')}>{node => node.value}</Match>
+      </Switch>
+    )}
   </Index>
 )
