@@ -4,7 +4,6 @@ import type * as MdAst from 'mdast'
 import { Link } from 'solid-app-router'
 import { Component, For, Match, Show, Switch } from 'solid-js'
 import { Editor } from '../Editor/Editor'
-import { Center } from '../layout/Center'
 import { Stack } from '../layout/Stack'
 import Css from './Slide.module.scss'
 
