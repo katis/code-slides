@@ -1,4 +1,12 @@
+import { Router } from 'solid-app-router'
 import { render } from 'solid-js/web'
 import { App } from './App'
 
-render(() => <App />, document.body)
+render(
+  () => (
+    <Router>
+      <App />
+    </Router>
+  ),
+  document.body,
+)

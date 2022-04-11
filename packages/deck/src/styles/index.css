@@ -1,0 +1,30 @@
+@import './variables.css';
+@import './preflight.css';
+
+:root {
+  /* Scale font size by page width, with min 1rem */
+  font-size: calc(1rem + 0.5vw);
+  background-color: var(--bg-900);
+  color: var(--fg-100);
+}
+
+html,
+body {
+  height: 100%;
+}
+
+h1 {
+  font-size: var(--s4);
+}
+
+h2 {
+  font-size: var(--s3);
+}
+
+h3 {
+  font-size: var(--s2);
+}
+
+h4 {
+  font-size: var(--s1);
+}

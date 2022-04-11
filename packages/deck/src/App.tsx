@@ -1,39 +1,17 @@
-import { Component } from 'solid-js'
-import { Editor } from './components/Editor/Editor'
+import { Navigate, Route, Routes } from 'solid-app-router'
+import { Component, Suspense } from 'solid-js'
+import { Center } from './components/layout/Center'
 import { Slideshow } from './components/Slideshow/Slideshow'
-
-const src = `
-function greet(): string {
-  console.log("Hello, world!")
-}
-greet()
-`.trim()
-
-const asciidoc = `
-+++
-title = "New Website"
-+++
-
-# Code slideshow
-
-## Development
-
-Codebase uses [pnpm](https://pnpm.io) as a package manager.
-
-Run the dev tools in watch mode with:
-
-
-+++
-title = "New Website"
-+++
-
-# Second slide
-
-`.trim()
+import { SlideShowData } from './components/Slideshow/SlideShowData'
 
 export const App: Component = () => (
-  <div>
-    {/* <Editor src={src} /> */}
-    <Slideshow src={asciidoc} />
-  </div>
+  <Suspense fallback={<div class="text-neutral-100">Loading...</div>}>
+    <Routes>
+      <Route
+        path="/slides/:deck/*slide"
+        element={<Slideshow />}
+        data={SlideShowData}
+      />
+    </Routes>
+  </Suspense>
 )

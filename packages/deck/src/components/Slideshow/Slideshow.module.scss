@@ -1,0 +1,10 @@
+.slideshow {
+  height: 100%;
+  overflow-x: hidden;
+}
+
+.slideshowContent {
+  display: flex;
+  height: 100%;
+  width: calc(var(--slide-count) * 100%);
+}

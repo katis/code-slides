@@ -1,0 +1,25 @@
+.slide {
+  width: 100%;
+  height: 100%;
+  display: flex;
+
+  & > .link {
+    flex: 1 1 auto;
+  }
+
+  & > .content {
+    flex: 1 1 var(--measure);
+    max-inline-size: var(--measure);
+    padding-inline: var(--s-1);
+  }
+
+  & .navLink {
+    display: block;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.1);
+
+    &:hover {
+      background-color: rgba(0, 0, 10, 0.2);
+    }
+  }
+}

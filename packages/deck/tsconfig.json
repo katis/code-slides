@@ -5,7 +5,8 @@
     "jsx": "preserve",
     "jsxImportSource": "solid-js",
     "lib": ["ES2021", "DOM"],
-    "outDir": "lib"
+    "outDir": "lib",
+    "plugins": [{ "name": "typescript-plugin-css-modules" }]
   },
   "include": ["src"]
 }

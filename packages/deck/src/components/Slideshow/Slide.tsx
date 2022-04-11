@@ -1,37 +1,61 @@
 import type Toml from '@iarna/toml'
 import { Case, List } from '@katis/common'
 import type * as MdAst from 'mdast'
-import { Component, Index, Match, Show, Switch } from 'solid-js'
+import { Link } from 'solid-app-router'
+import { Component, For, Match, Show, Switch } from 'solid-js'
 import { Editor } from '../Editor/Editor'
+import { Center } from '../layout/Center'
+import { Stack } from '../layout/Stack'
+import Css from './Slide.module.scss'
 
 export interface Slide {
   metadata: Toml.JsonMap
   content: List<MdAst.Content>
 }
 
-export const Slide: Component<{ slide: Slide }> = ({ slide }) => (
-  <Content content={slide.content} />
+export interface SlideProps {
+  slide: Slide
+  previous?: string
+  next?: string
+}
+
+export const Slide: Component<SlideProps> = ({ slide, previous, next }) => (
+  <div class={Css.slide}>
+    <div class={Css.link}>
+      <Show when={previous}>
+        <Link class={Css.navLink} title="Previous slide" href={previous!} />
+      </Show>
+    </div>
+    <div class={Css.content}>
+      <Stack>
+        <Content content={slide.content} />
+      </Stack>
+    </div>
+    <div class={Css.link}>
+      <Show when={next}>
+        <Link class={Css.navLink} title="Next slide" href={next!} />
+      </Show>
+    </div>
+  </div>
 )
 
 const tsLanguages: List<string> = ['ts', 'typescript']
 
 const Content: Component<{ content: List<MdAst.Content> }> = ({ content }) => (
-  <Index each={content}>
+  <For each={content}>
     {node => (
-      // TODO: table, tableRow, tableCell, definition, footnoteDefinition,
-      //   linkReference, imageReference, footnot, footnoteReference
-      <Switch fallback={<div>Unknown node type {node().type}</div>}>
-        <Match when={Case.as(node(), 'blockquote')}>
+      <Switch fallback={<div>Unknown node type {node.type}</div>}>
+        <Match when={Case.as(node, 'blockquote')}>
           {node => (
             <blockquote>
               <Content content={node.children} />
             </blockquote>
           )}
         </Match>
-        <Match when={Case.as(node(), 'break')}>
+        <Match when={Case.as(node, 'break')}>
           <br />
         </Match>
-        <Match when={Case.as(node(), 'code')}>
+        <Match when={Case.as(node, 'code')}>
           {node => (
             <Show
               when={tsLanguages.includes(node.lang ?? '')}
@@ -45,21 +69,21 @@ const Content: Component<{ content: List<MdAst.Content> }> = ({ content }) => (
             </Show>
           )}
         </Match>
-        <Match when={Case.as(node(), 'delete')}>
+        <Match when={Case.as(node, 'delete')}>
           {node => (
             <del>
               <Content content={node.children} />
             </del>
           )}
         </Match>
-        <Match when={Case.as(node(), 'emphasis')}>
+        <Match when={Case.as(node, 'emphasis')}>
           {node => (
             <em>
               <Content content={node.children} />
             </em>
           )}
         </Match>
-        <Match when={Case.as(node(), 'heading')}>
+        <Match when={Case.as(node, 'heading')}>
           {node => (
             <Switch>
               <Match when={node.depth === 1}>
@@ -95,23 +119,23 @@ const Content: Component<{ content: List<MdAst.Content> }> = ({ content }) => (
             </Switch>
           )}
         </Match>
-        <Match when={Case.as(node(), 'html')}>
+        <Match when={Case.as(node, 'html')}>
           {node => <pre>{node.value}</pre>}
         </Match>
-        <Match when={Case.as(node(), 'image')}>
+        <Match when={Case.as(node, 'image')}>
           {node => <img src={node.url} alt={node.alt ?? undefined}></img>}
         </Match>
-        <Match when={Case.as(node(), 'inlineCode')}>
+        <Match when={Case.as(node, 'inlineCode')}>
           {node => <pre>{node.value}</pre>}
         </Match>
-        <Match when={Case.as(node(), 'link')}>
+        <Match when={Case.as(node, 'link')}>
           {node => (
             <a class="text-indigo-300" href={node.url}>
               <Content content={node.children} />
             </a>
           )}
         </Match>
-        <Match when={Case.as(node(), 'list')}>
+        <Match when={Case.as(node, 'list')}>
           {node => (
             // TODO: node.spread prop
             <Switch>
@@ -128,32 +152,32 @@ const Content: Component<{ content: List<MdAst.Content> }> = ({ content }) => (
             </Switch>
           )}
         </Match>
-        <Match when={Case.as(node(), 'listItem')}>
+        <Match when={Case.as(node, 'listItem')}>
           {node => (
             <li>
               <Content content={node.children} />
             </li>
           )}
         </Match>
-        <Match when={Case.as(node(), 'paragraph')}>
+        <Match when={Case.as(node, 'paragraph')}>
           {node => (
             <p>
               <Content content={node.children} />
             </p>
           )}
         </Match>
-        <Match when={Case.as(node(), 'strong')}>
+        <Match when={Case.as(node, 'strong')}>
           {node => (
             <strong>
               <Content content={node.children} />
             </strong>
           )}
         </Match>
-        <Match when={Case.as(node(), 'thematicBreak')}>
+        <Match when={Case.as(node, 'thematicBreak')}>
           <hr />
         </Match>
-        <Match when={Case.as(node(), 'text')}>{node => node.value}</Match>
+        <Match when={Case.as(node, 'text')}>{node => node.value}</Match>
       </Switch>
     )}
-  </Index>
+  </For>
 )
