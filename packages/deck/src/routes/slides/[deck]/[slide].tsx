@@ -4,12 +4,13 @@ import type * as MdAst from 'mdast'
 import remarkFrontmatter from 'remark-frontmatter'
 import remarkGfm from 'remark-gfm'
 import remarkParse from 'remark-parse'
-import { RouteDataFunc } from 'solid-app-router'
-import { createResource, Resource } from 'solid-js'
+import { useParams } from 'solid-app-router'
 import { unified } from 'unified'
-import type { Slide } from './Slide'
+import { Slide } from '../../../model/Slide'
+import { Slideshow } from '../../../components/Slideshow/Slideshow'
+import { createMemo } from 'solid-js'
 
-const modules: Dict<string> = import.meta.glob('../../../decks/*.md', {
+const modules: Dict<string> = import.meta.glob('../../../../decks/*.md', {
   as: 'raw',
 }) as any
 
@@ -18,9 +19,9 @@ const mdParser = unified()
   .use(remarkGfm)
   .use(remarkFrontmatter, { type: 'toml', marker: '+', anywhere: true } as any)
 
-async function loadDeck(deck: string): Promise<List<Slide>> {
+function deckSlides(deck: string): List<Slide> {
   // TODO: async loading, vite glob is sync
-  const src = modules[`../../../decks/${deck}.md`]
+  const src = modules[`../../../../decks/${deck}.md`]
   if (!src) {
     throw Error(`deck ${deck} not found`)
   }
@@ -49,9 +50,11 @@ const toSlides = (content: List<MdAst.Content>): List<Slide> =>
     ([meta, ...content]) => ({ metadata: meta.value, content }),
   )
 
-export const SlideShowData: RouteDataFunc<Resource<List<Slide>>> = ({
-  params,
-}) => {
-  const [deck] = createResource(params.deck, loadDeck, { initialValue: [] })
-  return deck
+export default function SlideShowPage() {
+  const params = useParams<{ deck: string; slide: string }>()
+  const currentSlide = createMemo(() => Number.parseInt(params.slide, 10))
+  const slides = createMemo(() => deckSlides(params.deck))
+  const deck = createMemo(() => params.deck)
+
+  return <Slideshow deck={deck} currentSlide={currentSlide} slides={slides} />
 }

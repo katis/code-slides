@@ -1,28 +1,17 @@
 import { List } from '@katis/common'
-import {
-  Navigate,
-  useNavigate,
-  useParams,
-  useRouteData,
-} from 'solid-app-router'
-import {
-  Component,
-  createEffect,
-  createMemo,
-  For,
-  Resource,
-  Show,
-} from 'solid-js'
+import { Navigate, useNavigate } from 'solid-app-router'
+import { Accessor, Component, createEffect, For, Show } from 'solid-js'
 import { Slide } from './Slide'
 import Css from './Slideshow.module.scss'
 
-export const Slideshow: Component = () => {
-  const slides = useRouteData<Resource<List<Slide> | undefined>>()
-  const slideCount = createMemo(() => slides()?.length ?? 0)
+interface Props {
+  currentSlide: Accessor<number>
+  deck: Accessor<string>
+  slides: Accessor<List<Slide>>
+}
 
+export const Slideshow: Component<Props> = ({ currentSlide, deck, slides }) => {
   const navigate = useNavigate()
-  const params = useParams<{ slide: string; deck: string }>()
-  const currentSlide = createMemo(() => Number.parseInt(params.slide, 10))
 
   let el!: HTMLDivElement
 
@@ -32,14 +21,12 @@ export const Slideshow: Component = () => {
   }, 'auto')
 
   const previousSlide = (slideNum: number = currentSlide()) =>
-    slideCount() > 1 && slideNum > 1
-      ? `/slides/${params.deck}/${slideNum - 1}`
+    slides().length > 1 && slideNum > 1
+      ? `/slides/${deck()}/${slideNum - 1}`
       : undefined
 
   const nextSlide = (slideNum: number = currentSlide()) =>
-    slideNum < slideCount()
-      ? `/slides/${params.deck}/${slideNum + 1}`
-      : undefined
+    slideNum < slides().length ? `/slides/${deck()}/${slideNum + 1}` : undefined
 
   createEffect(() => {
     window.addEventListener('keydown', ev => {
@@ -55,13 +42,13 @@ export const Slideshow: Component = () => {
 
   return (
     <Show
-      when={currentSlide() > 0 && currentSlide() <= (slides()?.length ?? 999)}
-      fallback={<Navigate href={`/slides/${params.deck}/1`} />}
+      when={currentSlide() > 0 && currentSlide() <= slides().length}
+      fallback={<Navigate href={`/slides/${deck()}/1`} />}
     >
       <div ref={el} class={Css.slideshow}>
         <div
           class={Css.slideshowContent}
-          style={{ '--slide-count': slideCount() }}
+          style={{ '--slide-count': slides().length }}
         >
           <For each={slides()}>
             {(slide, i) => (
