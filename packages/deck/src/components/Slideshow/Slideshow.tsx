@@ -46,10 +46,7 @@ export const Slideshow: Component<Props> = ({ currentSlide, deck, slides }) => {
       fallback={<Navigate href={`/slides/${deck()}/1`} />}
     >
       <div ref={el} class={Css.slideshow}>
-        <div
-          class={Css.slideshowContent}
-          style={{ '--slide-count': slides().length }}
-        >
+        <div class={Css.slideshowContent}>
           <For each={slides()}>
             {(slide, i) => (
               <Slide

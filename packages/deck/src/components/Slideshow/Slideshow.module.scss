@@ -6,5 +6,9 @@
 .slideshowContent {
   display: flex;
   height: 100%;
-  width: calc(var(--slide-count) * 100%);
+  min-width: 100%;
+
+  & > * {
+    flex: 1 0 100%;
+  }
 }
