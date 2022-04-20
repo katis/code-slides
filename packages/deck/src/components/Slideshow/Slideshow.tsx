@@ -1,16 +1,15 @@
-import { List } from '@katis/common'
 import { Navigate, useNavigate } from 'solid-app-router'
 import { Accessor, Component, createEffect, For, Show } from 'solid-js'
+import { Deck } from '../../model/Deck'
 import { Slide } from './Slide'
-import Css from './Slideshow.module.scss'
+import css from './Slideshow.module.scss'
 
 interface Props {
   currentSlide: Accessor<number>
-  deck: Accessor<string>
-  slides: Accessor<List<Slide>>
+  deck: Accessor<Deck>
 }
 
-export const Slideshow: Component<Props> = ({ currentSlide, deck, slides }) => {
+export const Slideshow: Component<Props> = ({ currentSlide, deck }) => {
   const navigate = useNavigate()
 
   let el!: HTMLDivElement
@@ -21,12 +20,14 @@ export const Slideshow: Component<Props> = ({ currentSlide, deck, slides }) => {
   }, 'auto')
 
   const previousSlide = (slideNum: number = currentSlide()) =>
-    slides().length > 1 && slideNum > 1
-      ? `/slides/${deck()}/${slideNum - 1}`
+    deck().slides.length > 1 && slideNum > 1
+      ? `/slides/${deck().name}/${slideNum - 1}`
       : undefined
 
   const nextSlide = (slideNum: number = currentSlide()) =>
-    slideNum < slides().length ? `/slides/${deck()}/${slideNum + 1}` : undefined
+    slideNum < deck().slides.length
+      ? `/slides/${deck().name}/${slideNum + 1}`
+      : undefined
 
   createEffect(() => {
     window.addEventListener('keydown', ev => {
@@ -42,12 +43,12 @@ export const Slideshow: Component<Props> = ({ currentSlide, deck, slides }) => {
 
   return (
     <Show
-      when={currentSlide() > 0 && currentSlide() <= slides().length}
-      fallback={<Navigate href={`/slides/${deck()}/1`} />}
+      when={currentSlide() > 0 && currentSlide() <= deck().slides.length}
+      fallback={<Navigate href={`/slides/${deck().slides}/1`} />}
     >
-      <div ref={el} class={Css.slideshow}>
-        <div class={Css.slideshowContent}>
-          <For each={slides()}>
+      <div ref={el} class={css.slideshow}>
+        <div class={css.slideshowContent}>
+          <For each={deck().slides}>
             {(slide, i) => (
               <Slide
                 slide={slide}
