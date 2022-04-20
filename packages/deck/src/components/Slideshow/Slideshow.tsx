@@ -6,7 +6,7 @@ import css from './Slideshow.module.scss'
 
 interface Props {
   currentSlide: Accessor<number>
-  deck: Accessor<Deck>
+  deck: Deck
 }
 
 export const Slideshow: Component<Props> = ({ currentSlide, deck }) => {
@@ -20,13 +20,13 @@ export const Slideshow: Component<Props> = ({ currentSlide, deck }) => {
   }, 'auto')
 
   const previousSlide = (slideNum: number = currentSlide()) =>
-    deck().slides.length > 1 && slideNum > 1
-      ? `/slides/${deck().name}/${slideNum - 1}`
+    deck.slides.length > 1 && slideNum > 1
+      ? `/slides/${deck.name}/${slideNum - 1}`
       : undefined
 
   const nextSlide = (slideNum: number = currentSlide()) =>
-    slideNum < deck().slides.length
-      ? `/slides/${deck().name}/${slideNum + 1}`
+    slideNum < deck.slides.length
+      ? `/slides/${deck.name}/${slideNum + 1}`
       : undefined
 
   createEffect(() => {
@@ -43,12 +43,12 @@ export const Slideshow: Component<Props> = ({ currentSlide, deck }) => {
 
   return (
     <Show
-      when={currentSlide() > 0 && currentSlide() <= deck().slides.length}
-      fallback={<Navigate href={`/slides/${deck().slides}/1`} />}
+      when={currentSlide() > 0 && currentSlide() <= deck.slides.length}
+      fallback={<Navigate href={`/slides/${deck.slides}/1`} />}
     >
       <div ref={el} class={css.slideshow}>
         <div class={css.slideshowContent}>
-          <For each={deck().slides}>
+          <For each={deck.slides}>
             {(slide, i) => (
               <Slide
                 slide={slide}

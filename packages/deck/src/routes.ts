@@ -1,11 +1,14 @@
 import { lazy } from 'solid-js'
 
-const pageModules = import.meta.glob('./routes/**/*.tsx')
+const pageModules = import.meta.glob('./routes/**/!(*.data).tsx')
+
+const pageDataModules = import.meta.globEager('./routes/**/*.data.tsx')
 
 export const routes = Object.entries(pageModules)
   .map(([path, load]) => ({
     path: pathToRoute(path),
     component: lazy(load as any),
+    data: pageData(path),
   }))
   .sort((a, b) => a.path.localeCompare(b.path))
 
@@ -17,6 +20,16 @@ function pathToRoute(path: string) {
   return '/' + [...dirs, file].filter(s => s).join('/')
 }
 
+function dataModulePath(modulePath: string) {
+  return modulePath.replace(/(.+)\.tsx$/, '$1.data.tsx')
+}
+
+function pageData(modulePath: string): (() => any) | undefined {
+  const key = dataModulePath(modulePath)
+  const module = pageDataModules[key]
+  if (!module) return undefined
+  return module.default
+}
 function dirPattern(dir: string) {
   const match = dir.match(/^\[(.+)\]$/)
   if (match) {
@@ -36,6 +49,13 @@ function filePattern(file: string) {
 
 if (import.meta.vitest) {
   const { it, expect } = import.meta.vitest
+
+  it('maps path to data function path', () => {
+    expect(dataModulePath('./routes/index.tsx')).toBe('./routes/index.data.tsx')
+    expect(dataModulePath('./routes/[foo]/[bar].tsx')).toBe(
+      './routes/[foo]/[bar].data.tsx',
+    )
+  })
 
   it('maps dir to pattern', () => {
     expect(dirPattern('foo')).toBe('foo')

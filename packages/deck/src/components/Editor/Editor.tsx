@@ -36,28 +36,6 @@ self.MonacoEnvironment = {
   },
 }
 
-const proxy = (target: any) =>
-  new Proxy<any>(target, {
-    get(target, name) {
-      console.log(target)
-      const value = target[name]
-      if (typeof value === 'function') {
-        return (...args: any[]) => {
-          console.log('CALL', name, args)
-          return value.apply(target, args)
-        }
-      } else {
-        console.log('GET', name, value)
-        return value
-      }
-    },
-    set(target, name, value) {
-      console.log('SET', name, value)
-      target[name] = value
-      return true
-    },
-  })
-
 export interface Props {
   src: string
 }
