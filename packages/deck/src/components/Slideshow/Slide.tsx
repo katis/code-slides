@@ -5,7 +5,7 @@ import { Link } from 'solid-app-router'
 import { Component, For, Match, Show, Switch } from 'solid-js'
 import { Editor } from '../Editor/Editor'
 import { Stack } from '../layout/Stack'
-import Css from './Slide.module.scss'
+import css from './Slide.module.scss'
 
 export interface Slide {
   metadata: Toml.JsonMap
@@ -19,20 +19,20 @@ export interface SlideProps {
 }
 
 export const Slide: Component<SlideProps> = ({ slide, previous, next }) => (
-  <div class={Css.slide}>
-    <div class={Css.link}>
+  <div class={css.slide}>
+    <div class={css.link}>
       <Show when={previous}>
-        <Link class={Css.navLink} title="Previous slide" href={previous!} />
+        <Link class={css.navLink} title="Previous slide" href={previous!} />
       </Show>
     </div>
-    <div class={Css.content}>
+    <div class={css.content}>
       <Stack>
         <Content content={slide.content} />
       </Stack>
     </div>
-    <div class={Css.link}>
+    <div class={css.link}>
       <Show when={next}>
-        <Link class={Css.navLink} title="Next slide" href={next!} />
+        <Link class={css.navLink} title="Next slide" href={next!} />
       </Show>
     </div>
   </div>
