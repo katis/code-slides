@@ -4,6 +4,7 @@ import type * as MdAst from 'mdast'
 import { Link } from 'solid-app-router'
 import { Component, For, Match, Show, Switch } from 'solid-js'
 import { Editor } from '../Editor/Editor'
+import { TypeScriptEditor } from '../Editor/TypeScriptEditor'
 import { Stack } from '../layout/Stack'
 import css from './Slide.module.scss'
 
@@ -38,7 +39,7 @@ export const Slide: Component<SlideProps> = ({ slide, previous, next }) => (
   </div>
 )
 
-const tsLanguages: List<string> = ['ts', 'typescript']
+const tsLanguages: List<string> = ['ts', 'tsx', 'typescript']
 
 const Content: Component<{ content: List<MdAst.Content> }> = ({ content }) => (
   <For each={content}>
@@ -59,12 +60,13 @@ const Content: Component<{ content: List<MdAst.Content> }> = ({ content }) => (
             <Show
               when={tsLanguages.includes(node.lang ?? '')}
               fallback={
-                <code>
-                  <pre>{node.value}</pre>
-                </code>
+                <Editor
+                  language={node.lang ?? 'text'}
+                  model={node.value}
+                ></Editor>
               }
             >
-              <Editor src={node.value} />
+              <TypeScriptEditor src={node.value} />
             </Show>
           )}
         </Match>

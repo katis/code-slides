@@ -4,6 +4,10 @@ title = "Basics"
 
 # Hello, world!
 
+```tsx
+Preview = () => <h1>Hello, world!</h1>
+```
+
 ## Second level
 
 ### Third level
