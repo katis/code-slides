@@ -5,7 +5,7 @@ title = "Basics"
 # Hello, world!
 
 ```tsx
-Preview = () => <h1>Hello, world!</h1>
+Preview = () => <h1>Hello, world!</h1>a
 ```
 
 ## Second level

@@ -4,8 +4,8 @@ import type * as MdAst from 'mdast'
 import { Link } from 'solid-app-router'
 import { Component, For, Match, Show, Switch } from 'solid-js'
 import { Editor } from '../Editor/Editor'
-import { TypeScriptEditor } from '../Editor/TypeScriptEditor'
 import { Stack } from '../layout/Stack'
+import { TypeScriptEditor } from '../TypeScriptEditor/TypeScriptEditor'
 import css from './Slide.module.scss'
 
 export interface Slide {

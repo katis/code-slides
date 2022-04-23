@@ -1,11 +1,13 @@
+import { debounce } from 'lodash-es'
 import * as monaco from 'monaco-editor'
 // See https://github.com/vitejs/vite/discussions/1791#discussioncomment-321046
 import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
 import JsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker'
-import TsWorker from '../../ts-worker?worker'
-import { Component, createMemo, createSignal } from 'solid-js'
 import { nanoid } from 'nanoid'
-import { Editor } from './Editor'
+import { Component, createEffect, createMemo, createSignal } from 'solid-js'
+import TsWorker from '../../ts-worker?worker'
+import { Editor } from '../Editor/Editor'
+import css from './TypeScriptEditor.module.scss'
 
 declare global {
   interface Window {
@@ -17,7 +19,7 @@ declare global {
 }
 
 self.MonacoEnvironment = {
-  getWorker(workerId, label) {
+  getWorker(_workerId, label) {
     switch (label) {
       case 'json':
         return new JsonWorker()
@@ -65,7 +67,7 @@ monaco.languages.typescript.typescriptDefaults.addExtraLib(
 )
 
 monaco.languages.typescript.typescriptDefaults.addExtraLib(
-  `declare var Preview: any`,
+  `declare let Preview: any`,
   'global-preview.d.ts',
 )
 
@@ -77,35 +79,82 @@ export const TypeScriptEditor: Component<Props> = ({ src }) => {
   const [js, setJs] = createSignal<string>()
   const [getEditor, setEditor] =
     createSignal<monaco.editor.IStandaloneCodeEditor>()
+  const [decorations, setDecorations] = createSignal<
+    monaco.editor.IModelDeltaDecoration[]
+  >([])
+
+  const [semantics, setSemantics] = createSignal<
+    monaco.languages.typescript.Diagnostic[]
+  >([])
 
   const model = createMemo(() => {
     const modelUri = monaco.Uri.file(`${nanoid()}-editor.tsx`)
     return monaco.editor.createModel(src, 'typescriptreact', modelUri)
   })
 
+  async function getTs() {
+    const getModelTsWorker =
+      await monaco.languages.typescript.getTypeScriptWorker()
+    return await getModelTsWorker(model().uri)
+  }
+
+  createEffect<string[]>(
+    oldDecorations =>
+      getEditor()?.deltaDecorations(oldDecorations, decorations()) ?? [],
+    [],
+  )
+
+  createEffect<string[]>(oldZoneIds => {
+    const editor = getEditor()
+    if (!editor) return oldZoneIds
+
+    const zones: monaco.editor.IViewZone[] = semantics().map(sem => {
+      const position = model().getPositionAt(sem.start!)
+      return {
+        afterLineNumber: position.lineNumber,
+        domNode: (
+          <div class={css.zone}>
+            <span class={css.errorIcon}>ⓧ </span>
+            {diagnosticMessage(sem.messageText)}
+          </div>
+        ) as HTMLElement,
+      }
+    })
+
+    let zoneIds: string[] = []
+    editor.changeViewZones(zoneAccessor => {
+      oldZoneIds.forEach(id => zoneAccessor.removeZone(id))
+      zoneIds = zones.map(zone => zoneAccessor.addZone(zone))
+    })
+    return zoneIds
+  }, [])
+
+  createEffect<monaco.IDisposable | undefined>(disposePrev => {
+    disposePrev?.dispose()
+
+    const dispose = getEditor()?.onDidChangeModelContent(
+      debounce(async (_ev: monaco.editor.IModelContentChangedEvent) => {
+        const ts = await getTs()
+        const uriStr = model().uri.toString()
+        const allSemantics = await ts.getSemanticDiagnostics(uriStr)
+        const fileSemantics = allSemantics.filter(
+          sem => sem.file?.fileName === uriStr,
+        )
+        setSemantics(fileSemantics)
+      }, 150),
+    )
+    return dispose
+  })
+
   async function transpile() {
     const editor = getEditor()
     if (!editor) return
 
-    const uri = editor.getModel()?.uri!
-    const uriStr = uri.toString()
+    const uriStr = model().uri.toString()
     const jsFilename = uriStr.replace(/\.tsx$/, '.js')
-    // console.log('URI', uri, uri.toString(), jsFilename)
-    const getTs = await monaco.languages.typescript.getTypeScriptWorker()
-    const ts = await getTs(uri)
+    const ts = await getTs()
     const output = await ts.getEmitOutput(uriStr)
-    // console.log('output', output)
     const js = output.outputFiles.find(file => file.name === jsFilename)
-
-    const allSemantics = await ts.getSemanticDiagnostics(uriStr)
-    // console.log('ALL_SEMANTICS', allSemantics)
-    const text = editor.getValue()
-    const fileSemantics = allSemantics
-      .filter(f => f.file?.fileName === uriStr)
-      .map(s => ({ ...s, line: lineNumber(text, s.start ?? 0) }))
-    // console.log('FILE_SEMANTICS', fileSemantics)
-
-    console.log('JS', js?.text)
     setJs(js?.text)
   }
 
@@ -180,27 +229,17 @@ export const TypeScriptEditor: Component<Props> = ({ src }) => {
           sandbox="allow-scripts"
           srcdoc={srcdoc()}
         />
-        {/* <code>
-          <pre
-            class="text-base"
-            style={{
-              'font-family': 'Menlo, Monaco, "Courier New", monospace',
-            }}
-          >
-            {js()}
-          </pre>
-        </code> */}
       </div>
     </div>
   )
 }
 
-function lineNumber(text: string, pos: number) {
-  let line = 1
-  for (let i = 0; i < pos; i++) {
-    if (text[i] === '\n') {
-      line++
-    }
+function diagnosticMessage(
+  msg: string | monaco.languages.typescript.DiagnosticMessageChain,
+): string {
+  if (typeof msg === 'string') {
+    return msg
+  } else {
+    return msg.messageText
   }
-  return line
 }

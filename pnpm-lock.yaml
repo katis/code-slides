@@ -19,9 +19,11 @@ importers:
     specifiers:
       '@iarna/toml': ^2.2.5
       '@katis/common': workspace:*
+      '@types/lodash-es': ^4.17.6
       '@types/react': ^18.0.6
       '@types/react-dom': ^18.0.2
       babel-preset-solid: ^1.3.13
+      lodash-es: ^4.17.21
       monaco-editor: ^0.33.0
       nanoid: ^3.3.2
       remark-frontmatter: ^4.0.1
@@ -41,12 +43,14 @@ importers:
       '@katis/common': link:../common
       '@types/react': 18.0.6
       '@types/react-dom': 18.0.2
+      lodash-es: 4.17.21
       remark-frontmatter: 4.0.1
       remark-gfm: 3.0.1
       remark-parse: 10.0.1
       solid-app-router: 0.3.2_solid-js@1.3.13
       unified: 10.1.2
     devDependencies:
+      '@types/lodash-es': 4.17.6
       babel-preset-solid: 1.3.13
       monaco-editor: 0.33.0
       nanoid: 3.3.2
@@ -421,6 +425,16 @@ packages:
 
   /@types/json5/0.0.29:
     resolution: {integrity: sha1-7ihweulOEdK4J7y+UnC86n8+ce4=}
+    dev: true
+
+  /@types/lodash-es/4.17.6:
+    resolution: {integrity: sha512-R+zTeVUKDdfoRxpAryaQNRKk3105Rrgx2CFRClIgRGaqDTdjsm8h6IYA8ir584W3ePzkZfst5xIgDwYrlh9HLg==}
+    dependencies:
+      '@types/lodash': 4.14.182
+    dev: true
+
+  /@types/lodash/4.14.182:
+    resolution: {integrity: sha512-/THyiqyQAP9AfARo4pF+aCGcyiQ94tX/Is2I7HofNRqoYLgN1PBoOWu2/zTA5zMxzP5EFutMtWtGAFRKUe961Q==}
     dev: true
 
   /@types/mdast/3.0.10:
@@ -1318,6 +1332,10 @@ packages:
     resolution: {integrity: sha512-lL87ytIGP2FU5PWwNDo0w3WhIo2gopIAxPg9RxDYF7m4rr5ahuZxP22xnJHIvaLTe4Z9P6uKKY2UHiwyB4pcrw==}
     engines: {node: '>=14'}
     dev: true
+
+  /lodash-es/4.17.21:
+    resolution: {integrity: sha512-mKnC+QJ9pWVzv+C4/U3rRsHapFfHvQFoFB92e52xeyGMcX6/OlIl78je1u8vePzYZSkkogMPJ2yjxxsb89cxyw==}
+    dev: false
 
   /lodash.camelcase/4.3.0:
     resolution: {integrity: sha1-soqmKIorn8ZRA1x3EfZathkDMaY=}
