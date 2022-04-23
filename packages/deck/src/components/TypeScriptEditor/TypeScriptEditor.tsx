@@ -108,12 +108,23 @@ export const TypeScriptEditor: Component<Props> = ({ src }) => {
     const editor = getEditor()
     if (!editor) return oldZoneIds
 
-    const zones: monaco.editor.IViewZone[] = semantics().map(sem => {
-      const position = model().getPositionAt(sem.start!)
+    const positions = semantics().map(sem => model().getPositionAt(sem.start!))
+
+    const zones: monaco.editor.IViewZone[] = semantics().map((sem, i) => {
+      const prev = positions[i - 1]
+      const pos = positions[i]
+      const next = positions[i + 1]
+
       return {
-        afterLineNumber: position.lineNumber,
+        afterLineNumber: pos.lineNumber,
         domNode: (
-          <div class={css.zone}>
+          <div
+            class={css.zone}
+            classList={{
+              [css.firstInLine]: !prev || prev.lineNumber !== pos.lineNumber,
+              [css.lastInLine]: !next || next.lineNumber !== pos.lineNumber,
+            }}
+          >
             <span class={css.errorIcon}>ⓧ </span>
             {diagnosticMessage(sem.messageText)}
           </div>
