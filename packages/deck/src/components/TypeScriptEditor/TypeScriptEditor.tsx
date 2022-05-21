@@ -37,6 +37,7 @@ monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
   target: monaco.languages.typescript.ScriptTarget.ES2020,
   jsx: monaco.languages.typescript.JsxEmit.React,
   jsxFactory: 'React.createElement',
+  module: monaco.languages.typescript.ModuleKind.CommonJS,
 })
 
 const reactTypes: string = Object.values(
@@ -62,12 +63,13 @@ monaco.languages.typescript.typescriptDefaults.addExtraLib(
 )
 
 monaco.languages.typescript.typescriptDefaults.addExtraLib(
-  "declare const ReactDOM: typeof import('@types/react-dom/client')",
+  `declare const ReactDOM: typeof import('@types/react-dom/client');
+   declare const React: typeof import("@types/react");`,
   'react-dom.d.ts',
 )
 
 monaco.languages.typescript.typescriptDefaults.addExtraLib(
-  `declare let Preview: any`,
+  `declare let Preview: any;`,
   'global-preview.d.ts',
 )
 
@@ -143,7 +145,10 @@ export const TypeScriptEditor: Component<Props> = ({ src }) => {
   createEffect<monaco.IDisposable | undefined>(disposePrev => {
     disposePrev?.dispose()
 
-    const dispose = getEditor()?.onDidChangeModelContent(
+    const editor = getEditor()
+    if (!editor) return
+
+    const dispose = editor.onDidChangeModelContent(
       debounce(async (_ev: monaco.editor.IModelContentChangedEvent) => {
         const ts = await getTs()
         const uriStr = model().uri.toString()
@@ -180,6 +185,7 @@ export const TypeScriptEditor: Component<Props> = ({ src }) => {
       meta.content = "script-src 'none'";
       document.head.appendChild(meta);
 
+      let exports = {}
       let Preview = undefined
 
       ${src}
@@ -187,8 +193,7 @@ export const TypeScriptEditor: Component<Props> = ({ src }) => {
       if (Preview) {
         const root = ReactDOM.createRoot(document.getElementById('preview'))
         root.render(React.createElement(Preview))
-      }
-      `
+      }`
 
     const inlineStyleNonce = nanoid()
     const scriptNonce = nanoid()
@@ -217,7 +222,6 @@ export const TypeScriptEditor: Component<Props> = ({ src }) => {
         <body>
           <div id="preview"></div>
           <script src="data:text/javascript;base64,${base64Src}" nonce="${scriptNonce}"></script>
-          <script nonce="${scriptNonce}">
         </body>
       </html>`
   })

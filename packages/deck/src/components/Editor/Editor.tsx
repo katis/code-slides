@@ -40,6 +40,8 @@ export interface Props {
   editorRef?(editor: monaco.editor.IStandaloneCodeEditor): void
 }
 
+const lineHeight = 24
+
 export const Editor: Component<Props> = ({ language, model, editorRef }) => {
   const [width, setWidth] = createSignal<number>()
   const [height, setHeight] = createSignal(10)
@@ -59,8 +61,10 @@ export const Editor: Component<Props> = ({ language, model, editorRef }) => {
         enabled: false,
       },
       fontSize: 16,
+      lineHeight,
       lineNumbersMinChars: 2,
       scrollBeyondLastLine: false,
+
       theme: 'vs-dark',
     })
 

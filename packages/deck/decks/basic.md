@@ -5,14 +5,11 @@ title = "Basics"
 # Hello, world!
 
 ```tsx
+export const foo = "qqq"
 Preview = () => <h1>Hello, world!</h1>a
 ```
 
 ## Second level
-
-### Third level
-
-#### Fourth level
 
 qwerqwlerkjqwlerkj
 
